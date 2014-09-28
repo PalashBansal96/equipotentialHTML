@@ -10,26 +10,34 @@ Your browser does not support the HTML5 canvas tag.
 var th=0, e,fx,fy;
 var curx = 0, cury = 0,fo,k=9000000000,al,nx,ny,frequency=1;
 
-var n=4;
-var q=[70,10,-60,-30];
-var cx=[300 , 400, 500 ,600 ];
-var cy=[200 , 300, 400, 500];
+var n=6;
+var q=[70,10,-60,-30,-50,15];
+var cx=[300 , 400, 100 ,700,600,500 ];
+var cy=[200 , 300, 500, 200,550,400];
 var e = [0,0,0,0,0,0,0,0,0,0,0];
 var i=0;
+
+//sorting
+
+for(i=0;i<n-1;i++)
+	for(var j=i+1;j<n;j++)
+		if(Math.abs(q[i])<Math.abs(q[j]))
+		{
+			var t;
+			t=q[i];q[i]=q[j];q[j]=t;
+			t=cx[i];cx[i]=cx[j];cx[j]=t;
+			t=cy[i];cy[i]=cy[j];cy[j]=t;
+		}
+
+
 var canvas = document.getElementById("myCanvas");
 var canvasWidth = canvas.width;
 var canvasHeight = canvas.height;
 var ctx = canvas.getContext("2d");
-for(i = 0; i<n;i++)
-{
-		if(q[i]>=0){ctx.fillStyle = "#FF0000";}
-		else {ctx.fillStyle = "#00FF00";}
-		ctx.beginPath();
-		ctx.arc((cx[i]),(canvasHeight-cy[i]),(Math.abs(q[i])*.9),0,2*Math.PI,false);
-		ctx.fill();
-}
+
+drawCharges()
+
 var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-ctx.putImageData(canvasData,0,0);
 var id = ctx.createImageData(1,1); // only do this once per page
 var d = id.data;                        // only do this once per page
 d[0] = 0; d[1] = 0;	d[2] = 0;	d[3] = 255;
@@ -41,6 +49,19 @@ function dooo(){
 	myInt=setInterval(paintLine,20);
 }
 
+function drawCharges(){
+	for(i = 0; i<n;i++)
+	{
+			if(q[i]>=0){ctx.fillStyle = "#FF0000";}
+			else {ctx.fillStyle = "#00FF00";}
+			ctx.beginPath();
+			ctx.arc((cx[i]),(canvasHeight-cy[i]),(Math.abs(q[i])*.9),0,2*Math.PI,false);
+			ctx.fill();
+	}
+}
+
+
+
 function paintCharge(){
 	ctx.stroke();
 	if(q[i]>0)
@@ -48,10 +69,10 @@ function paintCharge(){
 	else
 		mf=-1;
 	abc=0;
-	if(i==n){clearInterval(myInt); return;}
+	if(i==n){clearInterval(myInt); updateCanvas(); return;}
 	nx = cx[i] + Math.abs(q[i])*Math.cos(th);
 	ny = cy[i] + Math.abs(q[i])*Math.sin(th);
-	th+=5/(Math.abs(q[i]));
+	th+=2.5/(Math.abs(q[i]));
 }
 
 function paintLine(){
@@ -59,13 +80,15 @@ function paintLine(){
 	ctx.strokeStyle="blue"; // Green path
 	ctx.moveTo(nx,canvasHeight-ny);
 	while(true){
-		if(th>=2*Math.PI){
+		if(th>2*Math.PI){
 			i++; th=0;
+			if(i!=n)canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight); 
+			//^ does not work w/o condn. no idea why?
 			paintCharge();
 			return;
 		}
 		abc++;
-		if (abc>2000){console.log(100);paintCharge();return;}
+		if (abc>50000){console.log(100);paintCharge();return;}
 		curx=nx;cury=ny;fx=fy=0;
 		for(j = 0; j<n;j++)
 		{
@@ -74,7 +97,7 @@ function paintLine(){
 			fy+=e[j]*(cury-cy[j]);
 		}
 		fo = Math.sqrt(fx*fx+fy*fy);
-		while(fo>1)fo/=2;
+		while(fo>0.1)fo/=2;
 		al = Math.atan2(fy,fx);
 		nx = curx + fo*Math.cos(al);
 		ny = cury + fo*Math.sin(al);
@@ -105,8 +128,8 @@ function putPixel (x, y, r, g, b, a,canvasData) {
 }
 
 function isPixel(x,y,canvasData){
-	var index = (x + y * canvasWidth) * 4;
-    return (canvasData.data[index + 0]);//>0 || canvasData.data[index + 1]>0 || canvasData.data[index + 2]>0) ;
+	var index = (Math.floor(x) + Math.floor(y) * canvasWidth) * 4;
+    return (canvasData.data[index + 3]);//>0 || canvasData.data[index + 1]>0 || canvasData.data[index + 2]>0) ;
 }
 
 // That's how you update the canvas, so that your //
@@ -119,54 +142,3 @@ function updateCanvas(canvasData) {
 
 </body>
 </html>
-
-
-
-
-
-<!--
-n=4
-q={10,-20,30,-15}
-cx={100 , 200, 300 ,400 }
-cy={100 , 200, 300, 400}
-for(i = 0; i<n;i++)
-	{
-		if(q[i]>=0){setfillstyle(1,RED);setcolor(RED);}
-		else {setfillstyle(1,GREEN);setcolor(GREEN);}
-		pieslice(ftoi(cx[i]),ftoi(480-cy[i]),0,360,ftoi(fabs(q[i])*.9));
-	}
-	setcolor(0);
-	for(i = 0 ; i<n;i++)
-	{th=0;
-	while(!kbhit()&&th<2*pi)
-	{
-		nx = cx[i] + fabs(q[i])*cos(th);
-		ny = cy[i] + fabs(q[i])*sin(th);
-		th+=2*pi/(fabs(q[i])*2);
-		if(q[i]>0)
-			mf=1;
-		else
-			mf=-1;
-		while(!kbhit())
-		{
-			curx=nx;cury=ny;fx=fy=0;
-			for(int j = 0; j<n;j++)
-			{
-				e[j]=k*mf*q[j]/(pow((pow(curx-cx[j],2)+pow(cury-cy[j],2)),1.5));
-				fx+=e[j]*(curx-cx[j]);
-				fy+=e[j]*(cury-cy[j]);
-			}
-			fo = sqrt(fx*fx+fy*fy);
-			while(fo>1)fo/=2;
-			al = atan2(fy,fx);
-			nx = curx + fo*cos(al);
-			ny = cury + fo*sin(al);
-			int ck=(int(nx*100)==int(curx*100)&&int(ny*100)==int(cury*100));
-			if(ck||(!((int)nx==(int)curx&&(int)ny==(int)cury)&&getpixel(nx,480-ny)))
-				break;
-			putpixel(nx,480-ny,c[i]);
-		}
-		if(kbhit())if(getch()==27)break;
-	}
-	}
--->
