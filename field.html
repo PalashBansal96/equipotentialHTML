@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="800" height="600" style="border:1px solid #c3c3c3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+<button onclick="dooo();"> kad</button>
+<script>
+var th=0, e,fx,fy;
+var curx = 0, cury = 0,fo,k=9000000000,al,nx,ny,frequency=1;
+
+var n=4;
+var q=[70,10,-60,-30];
+var cx=[300 , 400, 500 ,600 ];
+var cy=[200 , 300, 400, 500];
+var e = [0,0,0,0,0,0,0,0,0,0,0];
+var i=0;
+var canvas = document.getElementById("myCanvas");
+var canvasWidth = canvas.width;
+var canvasHeight = canvas.height;
+var ctx = canvas.getContext("2d");
+for(i = 0; i<n;i++)
+{
+		if(q[i]>=0){ctx.fillStyle = "#FF0000";}
+		else {ctx.fillStyle = "#00FF00";}
+		ctx.beginPath();
+		ctx.arc((cx[i]),(canvasHeight-cy[i]),(Math.abs(q[i])*.9),0,2*Math.PI,false);
+		ctx.fill();
+}
+var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+ctx.putImageData(canvasData,0,0);
+var id = ctx.createImageData(1,1); // only do this once per page
+var d = id.data;                        // only do this once per page
+d[0] = 0; d[1] = 0;	d[2] = 0;	d[3] = 255;
+var th=0, abc=0,myInt;
+function dooo(){
+	console.log(canvasData.data[(1+1*canvasWidth)*4]);
+	i=0;
+	paintCharge();
+	myInt=setInterval(paintLine,30);
+}
+
+function paintCharge(){
+	if(q[i]>0)
+		mf=1;
+	else
+		mf=-1;
+	abc=0;
+	if(i==n){clearInterval(myInt); return;}
+	nx = cx[i] + Math.abs(q[i])*Math.cos(th);
+	ny = cy[i] + Math.abs(q[i])*Math.sin(th);
+	th+=5/(Math.abs(q[i]));
+}
+
+function paintLine(){
+	while(true){
+		if(th>=2*Math.PI){
+			i++; th=0;
+			paintCharge();
+			return;
+		}
+		abc++;
+		if (abc>500){console.log(100);paintCharge();return;}
+		curx=nx;cury=ny;fx=fy=0;
+		for(j = 0; j<n;j++)
+		{
+			e[j]=k*mf*q[j]/(Math.pow((Math.pow(curx-cx[j],2)+Math.pow(cury-cy[j],2)),1.5));
+			fx+=e[j]*(curx-cx[j]);
+			fy+=e[j]*(cury-cy[j]);
+		}
+		fo = Math.sqrt(fx*fx+fy*fy);
+		while(fo>1)fo/=2;
+		al = Math.atan2(fy,fx);
+		nx = curx + fo*Math.cos(al);
+		ny = cury + fo*Math.sin(al);
+		var ck=(Math.floor(nx*100)==Math.floor(curx*100)&&Math.floor(ny*100)==Math.floor(cury*100));
+		if(ck||(!(Math.floor(nx)==(Math.floor(curx))&&Math.floor(ny)==Math.floor(cury))&&isPixel(nx,canvasHeight-ny,canvasData)))
+			{console.log("aaa");paintCharge();return;}
+		//console.log("x:"+nx);
+		//console.log("y:"+ny);
+		ctx.putImageData( id, nx,canvasHeight- ny );
+	}
+}
+
+
+
+
+
+
+// That's how you define the value of a pixel //
+function putPixel (x, y, r, g, b, a,canvasData) {
+    var index = (x + y * canvasWidth) * 4;
+    canvasData.data[index + 0] = r;
+    canvasData.data[index + 1] = g;
+    canvasData.data[index + 2] = b;
+    canvasData.data[index + 3] = a;
+}
+
+function isPixel(x,y,canvasData){
+	var index = (x + y * canvasWidth) * 4;
+    return (canvasData.data[index + 0]);//>0 || canvasData.data[index + 1]>0 || canvasData.data[index + 2]>0) ;
+}
+
+// That's how you update the canvas, so that your //
+// modification are taken in consideration //
+function updateCanvas(canvasData) {
+    ctx.putImageData(canvasData, 0, 0);
+}
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+<!--
+n=4
+q={10,-20,30,-15}
+cx={100 , 200, 300 ,400 }
+cy={100 , 200, 300, 400}
+for(i = 0; i<n;i++)
+	{
+		if(q[i]>=0){setfillstyle(1,RED);setcolor(RED);}
+		else {setfillstyle(1,GREEN);setcolor(GREEN);}
+		pieslice(ftoi(cx[i]),ftoi(480-cy[i]),0,360,ftoi(fabs(q[i])*.9));
+	}
+	setcolor(0);
+	for(i = 0 ; i<n;i++)
+	{th=0;
+	while(!kbhit()&&th<2*pi)
+	{
+		nx = cx[i] + fabs(q[i])*cos(th);
+		ny = cy[i] + fabs(q[i])*sin(th);
+		th+=2*pi/(fabs(q[i])*2);
+		if(q[i]>0)
+			mf=1;
+		else
+			mf=-1;
+		while(!kbhit())
+		{
+			curx=nx;cury=ny;fx=fy=0;
+			for(int j = 0; j<n;j++)
+			{
+				e[j]=k*mf*q[j]/(pow((pow(curx-cx[j],2)+pow(cury-cy[j],2)),1.5));
+				fx+=e[j]*(curx-cx[j]);
+				fy+=e[j]*(cury-cy[j]);
+			}
+			fo = sqrt(fx*fx+fy*fy);
+			while(fo>1)fo/=2;
+			al = atan2(fy,fx);
+			nx = curx + fo*cos(al);
+			ny = cury + fo*sin(al);
+			int ck=(int(nx*100)==int(curx*100)&&int(ny*100)==int(cury*100));
+			if(ck||(!((int)nx==(int)curx&&(int)ny==(int)cury)&&getpixel(nx,480-ny)))
+				break;
+			putpixel(nx,480-ny,c[i]);
+		}
+		if(kbhit())if(getch()==27)break;
+	}
+	}
+-->
