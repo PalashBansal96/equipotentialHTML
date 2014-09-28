@@ -38,10 +38,11 @@ function dooo(){
 	console.log(canvasData.data[(1+1*canvasWidth)*4]);
 	i=0;
 	paintCharge();
-	myInt=setInterval(paintLine,30);
+	myInt=setInterval(paintLine,20);
 }
 
 function paintCharge(){
+	ctx.stroke();
 	if(q[i]>0)
 		mf=1;
 	else
@@ -54,6 +55,9 @@ function paintCharge(){
 }
 
 function paintLine(){
+	ctx.beginPath();
+	ctx.strokeStyle="blue"; // Green path
+	ctx.moveTo(nx,canvasHeight-ny);
 	while(true){
 		if(th>=2*Math.PI){
 			i++; th=0;
@@ -61,7 +65,7 @@ function paintLine(){
 			return;
 		}
 		abc++;
-		if (abc>500){console.log(100);paintCharge();return;}
+		if (abc>2000){console.log(100);paintCharge();return;}
 		curx=nx;cury=ny;fx=fy=0;
 		for(j = 0; j<n;j++)
 		{
@@ -79,8 +83,11 @@ function paintLine(){
 			{console.log("aaa");paintCharge();return;}
 		//console.log("x:"+nx);
 		//console.log("y:"+ny);
-		ctx.putImageData( id, nx,canvasHeight- ny );
+		//ctx.putImageData( id, nx,canvasHeight- ny );
+		ctx.lineTo(Math.floor(nx),Math.floor(canvasHeight-ny));
 	}
+	ctx.stroke();
+	//ctx.closePath();
 }
 
 
